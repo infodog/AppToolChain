@@ -1,0 +1,47 @@
+plugins {
+    id 'java'
+}
+
+group 'owl.app.tools'
+version '1.0-SNAPSHOT'
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    manifest {
+        attributes "Main-Class": "owl.apps.tools.AppDeployer"
+    }
+
+    from {
+        configurations.compile.collect { it.isDirectory() ? it : zipTree(it) }
+    }
+}
+
+
+task fatJar(type: Jar) {
+    manifest.from jar.manifest
+    classifier = 'all'
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        exclude "META-INF/*.SF"
+        exclude "META-INF/*.DSA"
+        exclude "META-INF/*.RSA"
+    }
+    with jar
+}
+
+artifacts {
+    archives fatJar
+}
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    implementation group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.7'
+    implementation group: 'org.apache.httpcomponents', name: 'httpcore', version: '4.4.11'
+    implementation group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.7'
+}
+
